@@ -52,9 +52,8 @@ theme_fig <- function(base_size = 17, base_family = "") {
 ###
 ### +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-
-#data <- read.delim("~/MFF/Psychometrie/data.csv", header=TRUE)
-data <- read.delim("C:/Users/kika/Desktop/UK/Psychometria/data.csv", header=TRUE)
+data <- read.delim("~/MFF/Psychometrie/data.csv", header=TRUE)
+#data <- read.delim("C:/Users/kika/Desktop/UK/Psychometria/data.csv", header=TRUE)
 
 summary(data[,-c(1:126)])
 
@@ -415,6 +414,24 @@ omega_result <- omega(answers, nfactors=3, digits = 6)
 # 4 decimal places
 round(mdo(answers, fit = FALSE), 4)
 
+# Spearman-Brown formula
+# doubling the items
+# k (factor in the B-S formula, 2)
+k1 <- (42+42)/42
+r1 <- 0.97
+(r2 <- k1*r1 / (1+ (k-1)*r1))
+# 0.9847716
+
+# number of items needed to get 0.9
+# k_2 is now number of items removed from the test
+r1_2 <- 0.97
+r2_2 <- 0.9
+(k_2 <- ( r1_2 * (1 - r2_2) ) / (r2_2 * (1 - r1_2) )) 
+# 3.592593
+# rounded it is 4 items difference, but we take
+# 3 items to get over the bound 0.9
+# 39 items needed
+
 ### +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ###
 ###   Item analysis
@@ -473,7 +490,7 @@ combined_table <- cbind(first_half, second_half)
 print(xtable(combined_table), include.rownames = FALSE)
 
 
-# distractor plots
+# empirical ICCs (generalizationfor nominal items)
 # item 23
 plotDistractorAnalysis(Data = answers, item = 23, num.group = 4)
 # item 34
@@ -489,6 +506,7 @@ transform_value <- function(x) {
   ifelse(x <= 2, 0, 1)  # Convert values 1, 2 to 1 and values 3, 4 to 2
 }
 answer_bin <- answer_bin %>% dplyr::mutate(across(everything(), transform_value))
+
 answer_bin$Total <- rowSums(answer_bin)
 # z-scores
 z_scores <- scale(answer_bin$Total)
